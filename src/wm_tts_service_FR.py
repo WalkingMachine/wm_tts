@@ -16,7 +16,7 @@ class wm_tts:
         rospy.loginfo(req.say.sentence)
 
         try:
-            os.system("pico2wave -l=en-US -w=/tmp/test.wav " + '"'+str(req.say.sentence)+'"')
+            os.system("pico2wave -l=fr-FR -w=/tmp/test.wav " + '"'+str(req.say.sentence)+'"')
             os.system("aplay /tmp/test.wav")
             os.system("rm /tmp/test.wav")
             rospy.loginfo("SARA said: %s", req.say.sentence)
