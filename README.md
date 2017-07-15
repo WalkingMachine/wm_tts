@@ -2,4 +2,4 @@
 
 ## Dependencies :
 
-`libttspico-utils`
+`sudo apt install libttspico-utils -y`
