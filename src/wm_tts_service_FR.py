@@ -20,10 +20,12 @@ class wm_tts:
         rospy.loginfo(req.say.sentence)
 
         try:
+            os.system("amixer set Capture toggle")
             os.system("pico2wave -l=fr-FR -w=/tmp/test.wav " + '"'+str(req.say.sentence)+'"')
             os.system("aplay /tmp/test.wav")
             os.system("rm /tmp/test.wav")
             rospy.loginfo("SARA said: %s", req.say.sentence)
+            os.system("amixer set Capture toggle")
             return True
 
         except CalledProcessError:
@@ -35,9 +37,11 @@ class wm_tts:
         rospy.loginfo(data.sentence)
 
         try:
+            os.system("amixer set Capture toggle")
             os.system("pico2wave -l=en-US -w=/tmp/test.wav " + '"'+str(data.sentence)+'"')
             os.system("aplay /tmp/test.wav")
             os.system("rm /tmp/test.wav")
+            os.system("amixer set Capture toggle")
             rospy.loginfo("SARA said: %s", data.sentence)
 
         except CalledProcessError:
