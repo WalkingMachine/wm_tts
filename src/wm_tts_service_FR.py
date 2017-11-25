@@ -13,7 +13,7 @@ class wm_tts:
     def __init__(self, node_name):
         rospy.init_node(node_name)
         s = rospy.Service('wm_say', say_service, self.say)
-        sub = rospy.Subscriber('say', say, self.callback, queue_size=1)
+        sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
     def say(self, req):
         rospy.loginfo(req.say.sentence)
 
