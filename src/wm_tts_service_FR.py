@@ -8,14 +8,12 @@ from wm_tts.msg import *
 import os
 from subprocess import check_call, CalledProcessError
 
+
 class wm_tts:
     def __init__(self, node_name):
         rospy.init_node(node_name)
         s = rospy.Service('wm_say', say_service, self.say)
-
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
-
-
     def say(self, req):
         rospy.loginfo(req.say.sentence)
 
@@ -31,7 +29,6 @@ class wm_tts:
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
             return False
-
 
     def callback(self, data):
         rospy.loginfo(data.sentence)
