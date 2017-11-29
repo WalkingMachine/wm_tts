@@ -35,7 +35,7 @@ class wm_tts:
 
         try:
             os.system("amixer set Capture 0")
-            os.system("pico2wave -l=en-US -w=/tmp/test.wav " + '"'+str(data.sentence)+'"')
+            os.system("pico2wave -l=fr-FR -w=/tmp/test.wav " + '"'+str(data.sentence)+'"')
             os.system("aplay /tmp/test.wav")
             os.system("rm /tmp/test.wav")
             os.system("amixer set Capture 127")
