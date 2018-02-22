@@ -18,8 +18,8 @@ class wm_tts:
         rospy.loginfo("language is set to "+self.langue)
 
     def say(self, req):
-        rospy.loginfo(req.sentence)
-        self.ossystem(req.sentence)
+        rospy.loginfo(req.say.sentence)
+        self.ossystem(req.say.sentence)
 
     def ossystem(self, sentence):
         try:
