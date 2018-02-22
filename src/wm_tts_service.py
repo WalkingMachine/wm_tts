@@ -20,6 +20,7 @@ class wm_tts:
     def say(self, req):
         rospy.loginfo(req.say.sentence)
         self.ossystem(req.say.sentence)
+	return True
 
     def ossystem(self, sentence):
         try:
