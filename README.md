@@ -2,7 +2,9 @@
 
 ## Dependencies :
 
-`sudo apt install libttspico-utils -y`
+`sudo apt install libttspico-utils -y`  
+`sudo apt install mpg123`  
+`pip install gtts`  
 
 ## Topic :
 
