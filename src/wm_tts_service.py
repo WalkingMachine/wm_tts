@@ -22,15 +22,6 @@ class wm_tts:
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
         rospy.loginfo("language is set to "+self.langue)
 
-
-    def internet_on(self):
-        try:
-            urllib2.urlopen('http://172.217.13.174', timeout=1)
-            return True
-        except urllib2.URLError as err: 
-            return False
-
-
     def say(self, req):
         rospy.loginfo(req.say.sentence)
 
