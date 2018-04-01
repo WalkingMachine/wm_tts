@@ -1,4 +1,4 @@
-# wm_tts
+# wm_tts [![Build Status](https://travis-ci.org/WalkingMachine/wm_tts.svg?branch=master)](https://travis-ci.org/WalkingMachine/wm_tts)
 
 ## Dependencies :
 
