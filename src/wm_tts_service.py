@@ -33,7 +33,7 @@ class wm_tts:
 	return True
 
 
-    def internet_on():
+    def internet_on(self):
         try:
             urllib2.urlopen('http://172.217.13.174', timeout=1)
             return True
