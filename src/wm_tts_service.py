@@ -71,7 +71,10 @@ class wm_tts:
     def callback(self, data):
         try:
             rospy.loginfo(data.sentence)
-            self.ossystem(data.sentence)
+            if self.internet_on():
+                self.online_tts(data.sentence)
+            else:
+                self.offline_tts(data.sentence)
 
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
