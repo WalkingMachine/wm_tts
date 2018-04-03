@@ -1,0 +1,4 @@
+<launch>
+    <node name="wm_tts_node" pkg="wm_tts" type="wm_tts_service.py" output="screen" >
+    </node>
+</launch>
