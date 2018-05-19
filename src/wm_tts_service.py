@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import rospy
-from wm_tts.srv import say_service
 import os
-from subprocess import check_call, CalledProcessError
-from wm_tts.msg import say
 import urllib2
+from subprocess import CalledProcessError
+
+import rospy
+from std_msgs.msg import String
+from wm_tts.msg import say
+from wm_tts.srv import say_service
 
 
 class wm_tts:
 
     def __init__(self, node_name):
         rospy.init_node(node_name)
+        self.pub = rospy.Publisher('sara_said', String, queue_size=10)
+
         self.langue = rospy.get_param("/langue", 'fr-FR')
 
         self.langue_online = self.langue[:2]
@@ -46,7 +50,9 @@ class wm_tts:
             os.system("pico2wave -l=" + self.langue + " -w=/tmp/test.wav " + '"' + str(sentence) + '"')
             os.system("aplay /tmp/test.wav")
             os.system("rm /tmp/test.wav")
-            rospy.loginfo("SARA said: %s", sentence)
+            sentence_str = "SARA said: %s" % sentence
+            rospy.loginfo(sentence_str)
+            self.pub.publish(sentence_str)
             os.system("amixer set Capture 127")
             return True
         except CalledProcessError:
@@ -61,7 +67,9 @@ class wm_tts:
             rospy.loginfo("gtts-cli " + '"' + str(sentence) + '"' + " -l '" + self.langue_online + "' -o /tmp/test.mp3")
             os.system("mpg123 /tmp/test.mp3")
             os.system("rm /tmp/test.mp3")
-            rospy.loginfo("SARA said: %s", sentence)
+            sentence_str = "SARA said: %s" % sentence
+            rospy.loginfo(sentence_str)
+            self.pub.publish(sentence_str)
             os.system("amixer set Capture 127")
             return True
         except CalledProcessError:
