@@ -18,26 +18,24 @@ class wm_tts:
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
         self.langue = rospy.get_param("/langue", 'fr-FR')
-
         self.langue_online = self.langue[:2]
-
 
         s = rospy.Service('wm_say', say_service, self.say)
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
+
         rospy.loginfo("language is set to "+self.langue)
 
     def say(self, req):
         rospy.loginfo(req.say.sentence)
 
         if self.internet_on():
-             self.online_tts(req.say.sentence)       
+            self.online_tts(req.say.sentence)
         else:
             self.offline_tts(req.say.sentence)
+        return True
 
-	return True
-
-
-    def internet_on(self):
+    @staticmethod
+    def internet_on():
         try:
             urllib2.urlopen('http://172.217.13.174', timeout=1)
             return True
