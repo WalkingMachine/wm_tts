@@ -17,16 +17,14 @@ class wm_tts:
         rospy.init_node(node_name)
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
-        self.langue_online = self.langue[:2]
 
         s = rospy.Service('wm_say', say_service, self.say)
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
 
-        rospy.loginfo("language is set to "+self.langue)
-
     def say(self, req):
         rospy.loginfo(req.say.sentence)
         self.langue = rospy.get_param("/langue", 'en-US')
+        self.langue_online = self.langue[:2]
         self.gain = rospy.get_param("/gain", 8)
 
         if self.internet_on():
