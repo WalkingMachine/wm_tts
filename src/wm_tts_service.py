@@ -17,7 +17,6 @@ class wm_tts:
         rospy.init_node(node_name)
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
-        self.langue = rospy.get_param("/langue", 'fr-FR')
         self.langue_online = self.langue[:2]
 
         s = rospy.Service('wm_say', say_service, self.say)
@@ -27,6 +26,8 @@ class wm_tts:
 
     def say(self, req):
         rospy.loginfo(req.say.sentence)
+        self.langue = rospy.get_param("/langue", 'en-US')
+        self.gain = rospy.get_param("/gain", 8)
 
         if self.internet_on():
             self.online_tts(req.say.sentence)
@@ -45,9 +46,11 @@ class wm_tts:
     def offline_tts(self, sentence):
         try:
             os.system("amixer set Capture 0")
-            os.system("pico2wave -l=" + self.langue + " -w=/tmp/test.wav " + '"' + str(sentence) + '"')
-            os.system("aplay /tmp/test.wav")
-            os.system("rm /tmp/test.wav")
+            os.system("pico2wave -l=" + self.langue + " -w=/tmp/test1.wav " + '"' + str(sentence) + '"')
+            os.system("sox /tmp/test1.wav /tmp/test2.wav gain -n "+str(self.gain))
+            os.system("aplay /tmp/test2.wav")
+            os.system("rm /tmp/test1.wav")
+            os.system("rm /tmp/test2.wav")
             sentence_str = "SARA said: %s" % sentence
             rospy.loginfo(sentence_str)
             self.pub.publish(sentence_str)
