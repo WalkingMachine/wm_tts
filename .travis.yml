@@ -73,6 +73,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin
   - sudo apt-get install libttspico-utils -y
+  - sudo apt-get install sox -y
   - sudo apt-get install mpg123
   - sudo apt-get install libgnutls28-dev
   - source /opt/ros/$ROS_DISTRO/setup.bash
