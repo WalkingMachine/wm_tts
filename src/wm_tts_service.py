@@ -18,6 +18,7 @@ class wm_tts:
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
         self.langue = rospy.get_param("/langue", 'fr-FR')
+        self.forceOffline = rospy.get_param("/force_offline", True)
         self.langue_online = self.langue[:2]
 
         s = rospy.Service('wm_say', say_service, self.say)
@@ -28,7 +29,7 @@ class wm_tts:
     def say(self, req):
         rospy.loginfo(req.say.sentence)
 
-        if self.internet_on():
+        if not self.forceOffline and self.internet_on():
             self.online_tts(req.say.sentence)
         else:
             self.offline_tts(req.say.sentence)
@@ -37,7 +38,7 @@ class wm_tts:
     @staticmethod
     def internet_on():
         try:
-            urllib2.urlopen('http://172.217.13.174', timeout=1)
+            urllib2.urlopen('http://172.217.13.174', timeout=0.1)
             return True
         except urllib2.URLError as err: 
             return False
@@ -46,7 +47,7 @@ class wm_tts:
         try:
             os.system("amixer set Capture 0")
             os.system("pico2wave -l=" + self.langue + " -w=/tmp/test.wav " + '"' + str(sentence) + '"')
-            os.system("aplay /tmp/test.wav")
+            os.system("aplay /tmp/test.wav --disable-softvol")
             os.system("rm /tmp/test.wav")
             sentence_str = "SARA said: %s" % sentence
             rospy.loginfo(sentence_str)
@@ -77,7 +78,7 @@ class wm_tts:
     def callback(self, data):
         try:
             rospy.loginfo(data.sentence)
-            if self.internet_on():
+            if not self.forceOffline and self.internet_on():
                 self.online_tts(data.sentence)
             else:
                 self.offline_tts(data.sentence)
