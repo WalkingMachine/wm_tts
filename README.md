@@ -4,6 +4,7 @@
 
 `sudo apt install libttspico-utils -y`  
 `sudo apt install mpg123`  
+`sudo apt install sox`  
 `pip install gtts`  
 
 ## Topic :
