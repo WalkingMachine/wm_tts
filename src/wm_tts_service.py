@@ -8,7 +8,7 @@ from subprocess import CalledProcessError
 import rospy
 from std_msgs.msg import String
 from wm_tts.msg import say
-from wm_tts.srv import say_service
+from wm_tts.srv import say_action
 
 
 class wm_tts:
@@ -33,6 +33,19 @@ class wm_tts:
         else:
             self.offline_tts(req.say.sentence)
         return True
+
+    def callback(self, data):
+        try:
+            rospy.loginfo(data.sentence)
+            if self.internet_on():
+                self.online_tts(data.sentence)
+            else:
+                self.offline_tts(data.sentence)
+
+        except CalledProcessError:
+            rospy.logwarn('Last subprocess call was not valid.')
+            return False
+
 
     @staticmethod
     def internet_on():
@@ -73,19 +86,6 @@ class wm_tts:
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
         return False
-
-    def callback(self, data):
-        try:
-            rospy.loginfo(data.sentence)
-            if self.internet_on():
-                self.online_tts(data.sentence)
-            else:
-                self.offline_tts(data.sentence)
-
-        except CalledProcessError:
-            rospy.logwarn('Last subprocess call was not valid.')
-            return False
-
 
 if __name__ == '__main__':
 
