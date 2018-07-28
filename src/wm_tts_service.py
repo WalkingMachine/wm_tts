@@ -10,10 +10,21 @@ from std_msgs.msg import String
 from wm_tts.msg import say
 from wm_tts.srv import say_service
 
+from googletrans import Translator
 
 class wm_tts:
 
     def __init__(self, node_name):
+        self.translate = True
+        self.translator = Translator()
+        self.langue = rospy.get_param("/langue", 'en-US')
+        self.langue_online = self.langue[:2]
+
+
+        self.gain = rospy.get_param("/gain", 8)
+        self.forceOffline = rospy.get_param("/force_offline", False)
+
+
         rospy.init_node(node_name)
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
@@ -21,16 +32,19 @@ class wm_tts:
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
 
     def say(self, req):
-        rospy.loginfo(req.say.sentence)
         self.langue = rospy.get_param("/langue", 'en-US')
         self.langue_online = self.langue[:2]
-        self.gain = rospy.get_param("/gain", 8)
-        self.forceOffline = rospy.get_param("/force_offline", True)
 
+        sentence = req.say.sentence
+        if self.translate:
+            sentence = self.translator.translate(req.say.sentence, dest='fr').text
+
+
+        rospy.loginfo(req.say.sentence)
         if not self.forceOffline and self.internet_on():
-            self.online_tts(req.say.sentence)
+            self.online_tts(sentence)
         else:
-            self.offline_tts(req.say.sentence)
+            self.offline_tts(sentence)
         return True
 
     @staticmethod
@@ -79,10 +93,15 @@ class wm_tts:
     def callback(self, data):
         try:
             rospy.loginfo(data.sentence)
-            if not self.forceOffline and self.internet_on():
-                self.online_tts(data.sentence)
+            sentence = data.sentence
+            print(self.translator.translate(data.sentence, dest='fr'))
+            if self.translate:
+                sentence = self.translator.translate(data.sentence, dest='fr')
+
+            if self.internet_on():
+                self.online_tts(sentence)
             else:
-                self.offline_tts(data.sentence)
+                self.offline_tts(sentence)
 
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
