@@ -4,12 +4,12 @@
 import os
 import urllib2
 from subprocess import CalledProcessError
-
+import actionlib
 import rospy
 from std_msgs.msg import String
 from wm_tts.msg import say
-from wm_tts.srv import say_action
-
+from sara_msgs.msg import tellAction, tellActionResult
+# import sara_msgs.msg
 
 class wm_tts:
 
@@ -20,19 +20,12 @@ class wm_tts:
         self.langue = rospy.get_param("/langue", 'fr-FR')
         self.langue_online = self.langue[:2]
 
-        s = rospy.Service('wm_say', say_service, self.say)
+        self.server = actionlib.SimpleActionServer('sara_say', tellAction, self.execute, False)
+        self.server.start()
+
         sub = rospy.Subscriber('say', data_class=say, callback=self.callback, queue_size=1)
 
-        rospy.loginfo("language is set to "+self.langue)
-
-    def say(self, req):
-        rospy.loginfo(req.say.sentence)
-
-        if self.internet_on():
-            self.online_tts(req.say.sentence)
-        else:
-            self.offline_tts(req.say.sentence)
-        return True
+        rospy.loginfo("language is set to " + self.langue)
 
     def callback(self, data):
         try:
@@ -46,13 +39,12 @@ class wm_tts:
             rospy.logwarn('Last subprocess call was not valid.')
             return False
 
-
     @staticmethod
     def internet_on():
         try:
             urllib2.urlopen('http://172.217.13.174', timeout=1)
             return True
-        except urllib2.URLError as err: 
+        except urllib2.URLError as err:
             return False
 
     def offline_tts(self, sentence):
@@ -86,6 +78,25 @@ class wm_tts:
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
         return False
+
+    def execute(self, goal):
+        result = tellActionResult()
+        try:
+            rospy.loginfo(goal.message)
+            if self.internet_on():
+                self.online_tts(goal.message)
+            else:
+                self.offline_tts(goal.message)
+
+            result.result.success = True
+            self.server.set_succeeded(result.result)
+
+        except CalledProcessError:
+            rospy.logwarn('Last subprocess call was not valid.')
+            result.result.success = False
+            self.server.set_succeeded(result.result)
+            return False
+
 
 if __name__ == '__main__':
 
