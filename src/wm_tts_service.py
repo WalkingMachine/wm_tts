@@ -22,7 +22,7 @@ class wm_tts:
 
     # Fonction utilisé pour executer les appels de service.
     def serviceCallback(self, req):
-        self.rospy.loginfo(req.say.sentence)
+        self.saySomething(req.say.sentence)
 
     # Fonction utilisé pour executer les commandes faites par topic.
     def topicCallback(self, data):
@@ -31,16 +31,18 @@ class wm_tts:
     # Fonction qui dit quelque chose.
     def saySomething(self, sentence):
         rospy.loginfo(sentence)
+
+        # Met à jours les paramètres.
         self.langue = rospy.get_param("/langue", 'en-US')
         self.langue_online = self.langue[:2]
         self.gain = rospy.get_param("/gain", 8)
-        self.forceOffline = rospy.get_param("/force_offline", True)
+        self.forceOffline = rospy.get_param("/force_offline", False)
 
+        # Choisi si on utilise le tts online ou offline
         if not self.forceOffline and self.internet_on():
-            self.online_tts(sentence)
+            return self.online_tts(sentence)
         else:
-            self.offline_tts(sentence)
-        return True
+            return self.offline_tts(sentence)
 
     # Vérifie que l'internet est disponnible
     @staticmethod
@@ -53,7 +55,7 @@ class wm_tts:
 
 
     def offline_tts(self, sentence):
-        self.p2w_tts(sentence)
+        return self.p2w_tts(sentence)
 
     # Utilise le Pico2Wav pour dire quelque chose.
     def p2w_tts(self, sentence):
@@ -77,6 +79,9 @@ class wm_tts:
 
     # Utilise le GoogleSpeechAPI pour dire quelque chose.
     def online_tts(self, sentence):
+        return self.gsapi_tts(sentence)
+
+    def gsapi_tts(self, sentence):
         try:
             os.system("amixer set Capture 0")
 
