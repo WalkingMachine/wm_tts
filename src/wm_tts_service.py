@@ -37,10 +37,11 @@ class wm_tts:
 
         s = rospy.Service('wm_say', say_service, self.serviceCallback)
         sub = rospy.Subscriber('say', data_class=say, callback=self.topicCallback, queue_size=1)
+        self.instances = 0
 
     # Fonction utilisé pour executer les appels de service.
     def serviceCallback(self, req):
-        self.saySomething(req.say.sentence)
+        return self.saySomething(req.say.sentence)
 
     # Fonction utilisé pour executer les commandes faites par topic.
     def topicCallback(self, data):
@@ -60,17 +61,22 @@ class wm_tts:
         print("gain = "+str(self.gain))
         print("force_offline = "+str(self.forceOffline))
 
-        # Ferme le micro pour pas que le robot s'entende
+        # Ferme le micro pour pas que le robot s'entende et incrémente le compteurs d'instance.
         os.system("amixer set Capture 0")
+        self.instances += 1
 
         # Choisi si on utilise le tts online ou offline
+        resp = False
         if not self.forceOffline and self.internet_on():
             resp = self.online_tts(sentence)
         else:
             resp = self.offline_tts(sentence)
 
-        # Réouvre le micro
-        os.system("amixer set Capture 127")
+        # Réouvre le micro quand e compteur d'instance retourne à 0.
+        self.instances -= 1
+        print("instances="+str(self.instances))
+        if self.instances == 0:
+            os.system("amixer set Capture 127")
         return resp
 
     # Vérifie que l'internet est disponnible
