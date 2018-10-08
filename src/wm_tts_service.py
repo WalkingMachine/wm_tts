@@ -60,11 +60,18 @@ class wm_tts:
         print("gain = "+str(self.gain))
         print("force_offline = "+str(self.forceOffline))
 
+        # Ferme le micro pour pas que le robot s'entende
+        os.system("amixer set Capture 0")
+
         # Choisi si on utilise le tts online ou offline
         if not self.forceOffline and self.internet_on():
-            return self.online_tts(sentence)
+            resp = self.online_tts(sentence)
         else:
-            return self.offline_tts(sentence)
+            resp = self.offline_tts(sentence)
+
+        # Réouvre le micro
+        os.system("amixer set Capture 127")
+        return resp
 
     # Vérifie que l'internet est disponnible
     @staticmethod
@@ -85,7 +92,6 @@ class wm_tts:
     # Utilise le Pico2Wav pour dire quelque chose.
     def p2w_tts(self, sentence):
         try:
-            os.system("amixer set Capture 0")
             os.system("pico2wave -l=" + self.langue + " -w=/tmp/test1.wav " + '"' + str(sentence) + '"')
             os.system("sox /tmp/test1.wav /tmp/test2.wav gain -n " + str(self.gain))
             os.system("aplay /tmp/test2.wav")
@@ -95,7 +101,6 @@ class wm_tts:
             sentence_str = "SARA said: %s" % sentence
             rospy.loginfo(sentence_str)
             self.pub.publish(sentence_str)
-            os.system("amixer set Capture 127")
             return True
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
@@ -158,8 +163,6 @@ class wm_tts:
 
     def gsapi_tts(self, sentence):
         try:
-            os.system("amixer set Capture 0")
-
             os.system("gtts-cli " + '"' + str(sentence) + '"' + " -l '" + self.langue_online + "' -o /tmp/test.mp3")
             rospy.loginfo("gtts-cli " + '"' + str(sentence) + '"' + " -l '" + self.langue_online + "' -o /tmp/test.mp3")
             os.system("mpg123 /tmp/test.mp3")
@@ -167,7 +170,6 @@ class wm_tts:
             sentence_str = "SARA said: %s" % sentence
             rospy.loginfo(sentence_str)
             self.pub.publish(sentence_str)
-            os.system("amixer set Capture 127")
             return True
         except CalledProcessError:
             rospy.logwarn('Last subprocess call was not valid.')
