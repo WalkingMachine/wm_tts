@@ -28,15 +28,15 @@ import math # For ceiling
 mary_host = "localhost"
 mary_port = "59125"
 
-
 class wm_tts:
 
     def __init__(self, node_name):
         rospy.init_node(node_name)
         self.pub = rospy.Publisher('sara_said', String, queue_size=10)
 
-        s = rospy.Service('wm_say', say_service, self.serviceCallback)
-        sub = rospy.Subscriber('say', data_class=say, callback=self.topicCallback, queue_size=1)
+        rospy.Service('wm_say', say_service, self.serviceCallback)
+        rospy.Subscriber('say', data_class=say, callback=self.topicCallback, queue_size=1)
+        # Numero d'instances de tts actif
         self.instances = 0
 
     # Fonction utilisé pour executer les appels de service.
@@ -85,7 +85,7 @@ class wm_tts:
         try:
             urllib2.urlopen('http://172.217.13.174', timeout=0.1)
             return True
-        except urllib2.URLError as err:
+        except urllib2.URLError:
             return False
 
 
