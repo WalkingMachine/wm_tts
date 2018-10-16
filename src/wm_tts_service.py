@@ -83,9 +83,11 @@ class wm_tts:
     @staticmethod
     def internet_on():
         try:
-            urllib2.urlopen('http://172.217.13.174', timeout=0.1)
+            urllib2.urlopen('http://172.217.13.174', timeout=0.4)
             return True
         except urllib2.URLError as err:
+            return False
+        except:
             return False
 
 
