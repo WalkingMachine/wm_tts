@@ -65,12 +65,18 @@ class wm_tts:
         os.system("amixer set Capture 0")
         self.instances += 1
 
-        # Choisi si on utilise le tts online ou offline
-        resp = False
-        if not self.forceOffline and self.internet_on():
-            resp = self.online_tts(sentence)
-        else:
-            resp = self.offline_tts(sentence)
+        try:
+            # Choisi si on utilise le tts online ou offline
+            resp = False
+            if not self.forceOffline and self.internet_on():
+                resp = self.online_tts(sentence)
+            else:
+                resp = self.offline_tts(sentence)
+        except:
+            try:
+                resp = self.offline_tts(sentence)
+            except:
+                print("an error occured !!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         # Réouvre le micro quand e compteur d'instance retourne à 0.
         self.instances -= 1
